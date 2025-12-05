@@ -1,6 +1,7 @@
 # aws-eks-standards
-aws EKS standards for enterprise cloud adoption
-Workshop EKS
+aws EKS standards for Enterprise Cloud Adoption
+
+ *  **Workshop EKS**
 
 ## **Intro. Most Used Commands for Amazon EKS (Elastic Kubernetes Service)**
 
@@ -10,62 +11,62 @@ These AWS CLI commands are essential for managing the EKS control plane and inte
 
 ## Category	**Action**/	**Command** Example
 
-Cluster Management	List all cluster names	
+ * Cluster Management	List all cluster names	
 ```
 aws eks list-clusters
  ```
 
-Get cluster details	
+ *  Get cluster details	
 ```
 aws eks describe-cluster --name <cluster-name>
 ```
 
-Create an EKS cluster	
+ * Create an EKS cluster	
 ```
 aws eks create-cluster --name <name> --version 1.29 --role-arn <role-arn> --resources-vpc-config ...
 ```
 
-Delete a cluster	
+ * Delete a cluster	
 ```
 aws eks delete-cluster --name <cluster-name>
 ```
 
-Kubeconfig	Crucial: Update local ~/.kube/config file to connect kubectl to the EKS cluster	
+ * Kubeconfig	Crucial: Update local ~/.kube/config file to connect kubectl to the EKS cluster	
 ```
 aws eks update-kubeconfig --name <cluster-name>
 ```
 
-Update with assumed role credentials	
+ * Update with assumed role credentials	
 ```
 aws eks update-kubeconfig --name <cluster-name> --role-arn <management-role-arn>
 ```
 
-Node Groups	List node groups in a cluster	
+ * Node Groups	List node groups in a cluster	
 ```
 aws eks list-nodegroups --cluster-name <cluster-name>
 ```
 
-Describe a node group	
+ * Describe a node group	
 ```
 aws eks describe-nodegroup --cluster-name <name> --nodegroup-name <name>
 ```
 
-Create a managed node group	
+ * Create a managed node group	
 ```
 aws eks create-nodegroup --cluster-name <name> --nodegroup-name <name> --node-role <arn> --subnet-ids ...
 ```
 
-Delete a node group	
+ * Delete a node group	
 ```
 aws eks delete-nodegroup --cluster-name <name> --nodegroup-name <name>
 ```
 
-Add-ons	List installed EKS add-ons	
+ * Add-ons	List installed EKS add-ons	
 ```
 aws eks list-addons --cluster-name <cluster-name>
 ```
 
-Create an EKS add-on	
+ * Create an EKS add-on	
 ```
 aws eks create-addon --cluster-name <name> --addon-name vpc-cni
 ```
