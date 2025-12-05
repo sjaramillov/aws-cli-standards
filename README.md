@@ -1,172 +1,106 @@
 # aws-cli-standards
 aws cli standards for enterprise cloud adoption
-# Enterprise Cloud Adoption Standard (AWS)
+# AWS EKS Enterprise Standard: [Nombre del Clúster/Proyecto]
 
-Este documento define las **instrucciones empresariales estándar para la adopción de nube**, basadas en buenas prácticas de gobierno, seguridad, automatización e integración operacional utilizando AWS CLI y servicios relacionados.
-
----
-
-## 1. Configuración y Autenticación Empresarial
-
-Todo uso del AWS CLI dentro de la empresa **debe** seguir autenticación basada en roles y configuraciones seguras.
-
-### Estándares Obligatorios
-
-* **Autenticación sin llaves permanentes**: Solo IAM Roles, AWS SSO o STS AssumeRole.
-* **Prohibido** usar claves estáticas o credenciales root.
-* **Perfiles obligatorios**: Cada equipo debe operar con perfiles definidos en `~/.aws/config`.
-* **Región y formato estándar**: Obligatorio establecer región por defecto y formato `json`.
-* **Uso de `jq`** para procesamiento estándar de JSON en automatización.
-
-### Ejemplo de configuración empresarial
-
-```bash
-# Incorrecto — nunca usar claves embebidas
-aws configure
-
-# Correcto — usar un perfil vinculado a SSO o STS
-aws configure --profile OpsAdmin
-```
+| Control de Documento | Detalle |
+| :--- | :--- |
+| **ID del Documento** | REF-EKS-001 |
+| **Versión** | 1.0.0 (Draft) |
+| **Clasificación** | Interno / Confidencial |
+| **Propietario Técnico** | Platform Engineering Team |
+| **Estado** | Activo |
+| **Última Actualización** | 2024-05-23 |
 
 ---
 
-## 2. Estandarización de Comandos y Scripting
+## 1. Propósito y Alcance
 
-Los comandos deben ser predecibles, repetibles y orientados a automatización.
+Este documento define la arquitectura de referencia, los patrones de operación y los controles de seguridad para el despliegue de cargas de trabajo en el clúster **[Nombre del Clúster]** basado en Amazon EKS. Su objetivo es garantizar la consistencia, la observabilidad y el cumplimiento normativo (Compliance) de todas las aplicaciones desplegadas.
 
-### 2.1 Salida orientada a máquina
-
-Evita usar tab/tablas en scripts. Usar únicamente `json` o `text`.
-
-```bash
-aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --output json > instances.json
-```
-
-### 2.2 Uso obligatorio de JMESPath
-
-Nunca procesar JSON manualmente.
-
-```bash
-aws ec2 describe-instances \
-  --query 'Reservations[*].Instances[*].{ID:InstanceId,IP:PublicIpAddress}' \
-  --output table
-```
+### 1.1 Principios de Diseño
+* **Inmutabilidad:** La infraestructura se gestiona como código (IaC) mediante Terraform/Crossplane.
+* **GitOps:** Todo cambio en las cargas de trabajo debe pasar por un flujo de PR en Git (ArgoCD/Flux).
+* **Segregación:** Aislamiento estricto de redes y roles (IAM Roles for Service Accounts - IRSA).
 
 ---
 
-## 3. Gobernanza y Seguridad
+## 2. Arquitectura de Referencia (EKS Blueprint)
 
-### 3.1 Principio de Mínimos Privilegios (PoLP)
+La arquitectura sigue el patrón **"Hub-and-Spoke"** alineado con el *AWS Well-Architected Framework*.
 
-Roles y usuarios deben tener solo los permisos estrictamente necesarios.
 
-### 3.2 CloudTrail obligatorio
 
-CloudTrail debe estar activo en todas las cuentas para auditoría de comandos CLI.
+### 2.1 Componentes del Blueprint
+1.  **Capa de Red (VPC):**
+    * **Subnets Privadas (App Layer):** Donde residen los Worker Nodes. Sin acceso directo a Internet.
+    * **Subnets Públicas (Ingress Layer):** Solo para Load Balancers (ALB/NLB) y NAT Gateways.
+    * **Control Plane:** Gestionado por AWS, acceso al API Server restringido vía VPN/Bastion.
 
-### 3.3 Etiquetado estándar de recursos
+2.  **Cómputo (Data Plane):**
+    * **Managed Node Groups:** Para cargas de trabajo base y de sistema (CoreDNS, CNI).
+    * **Karpenter / AutoScaling:** Provisionamiento dinámico de nodos (Spot/On-Demand) basado en la demanda de los pods.
+    * **Fargate Profiles:** Para tareas *serverless* o *batch jobs* aislados.
 
-Cualquier script que cree recursos **debe** incluir etiquetas corporativas asociadas a centro de costos y proyecto.
-
-```bash
-aws ec2 run-instances --image-id ami-0abcdef1234567890 \
-    --tag-specifications 'ResourceType=instance,Tags=[{Key=Project,Value=Finance},{Key=Owner,Value=OpsTeam}]'
-```
-
----
-
-## 4. Excelencia Operacional y Automatización
-
-### 4.1 Integración con IaC
-
-El CLI se usa para operaciones y consultas, no para provisionamiento repetible.(automatización en Pipelines - DevOps)
-
-Uso recomendado del CLI:
-
-* Lectura de estado (`describe-*`).
-* Operaciones de dataplane (ej. detener instancias).
-* Bootstrapping de entornos de Terraform o CloudFormation.
+3.  **Ingress & Networking:**
+    * **AWS Load Balancer Controller:** Gestiona ALBs para HTTP/HTTPS y NLBs para TCP.
+    * **External DNS:** Sincronización automática de registros Route53.
+    * **Service Mesh (Opcional):** Istio/Linkerd para mTLS y observabilidad avanzada.
 
 ---
 
-## 5. Comandos Empresariales para Operación de Amazon EKS
+## 3. Patrones de Operación
 
-### 5.1 Gestión de Clusters
+### 3.1 Modelo de Despliegue (GitOps)
+No se permite el uso de `kubectl apply` manual en entornos productivos.
 
-* Listar clusters:
+* **Herramienta:** ArgoCD / Flux.
+* **Repositorio de Configuración:** `[git-repo-url]/k8s-manifests`
+* **Estrategia de Sync:** Automated Prune / Self-Heal.
 
-```bash
-aws eks list-clusters
-```
+### 3.2 Observabilidad (O11y)
+Stack estandarizado pre-instalado en todos los clústeres:
+* **Métricas:** Prometheus (AMP) + Grafana.
+* **Logs:** Fluentbit -> CloudWatch Logs / OpenSearch.
+* **Tracing:** AWS X-Ray / Jaeger.
 
-* Describir un cluster:
-
-```bash
-aws eks describe-cluster --name <cluster-name>
-```
-
-### 5.2 Conexión Kubernetes (kubeconfig)
-
-```bash
-aws eks update-kubeconfig --name <cluster-name>
-```
-
-Con rol asumido:
-
-```bash
-aws eks update-kubeconfig --name <cluster-name> --role-arn <role-arn>
-```
-
-### 5.3 Node Groups
-
-```bash
-aws eks list-nodegroups --cluster-name <cluster-name>
-aws eks create-nodegroup --cluster-name <name> --nodegroup-name <name> --node-role <arn> --subnet-ids ...
-```
-
-### 5.4 Add-ons
-
-```bash
-aws eks list-addons --cluster-name <cluster-name>
-aws eks create-addon --cluster-name <name> --addon-name vpc-cni
-```
+### 3.3 Gestión de Secretos
+* **Prohibido:** Secretos en texto plano en repositorios Git.
+* **Estándar:** External Secrets Operator (ESO) integrando con **AWS Secrets Manager**.
 
 ---
 
-## 6. Requisitos Organizacionales para la Adopción de Nube
+## 4. Matriz de Responsabilidades (RACI)
 
-### 6.1 Lineamientos de Gobierno
+Definición clara de *quién hace qué* en la operación del clúster.
 
-* Uso de **Landing Zones** estándar.
-* Políticas SCP para restringir acciones no autorizadas.
-* Separación de ambientes: **Prod / Non-Prod / Sandbox**.
+| Actividad | Platform Team | App/Dev Team | SecOps |
+| :--- | :---: | :---: | :---: |
+| **Provisionamiento del Clúster (EKS Upgrade)** | **R/A** | I | C |
+| **Gestión de Nodos (Capacity Planning)** | **R/A** | I | I |
+| **Creación de Namespaces y Quotas** | **R** | C | I |
+| **Despliegue de Aplicaciones (Helm/Manifests)** | C | **R/A** | I |
+| **Definición de Network Policies** | C | **R** | A |
+| **Gestión de Secretos (Secrets Manager)** | I | **R** | A |
+| **Respuesta a Incidentes (App Level)** | C | **R/A** | I |
+| **Respuesta a Incidentes (Infra Level)** | **R/A** | I | C |
 
-### 6.2 Seguridad
-
-* MFA obligatorio.
-* Rotación automática de credenciales efímeras.
-* Encripción en tránsito y reposo para todos los servicios.
-
-### 6.3 Operaciones
-
-* Uso de CloudWatch para observabilidad.
-* Automatización de despliegues con CI/CD.
-* Gestión centralizada de logs.
-
-### 6.4 Costos y FinOps
-
-* Cost Allocation Tags obligatorias.
-* Alarmas de presupuesto.
-* Revisión mensual de gasto por unidad de negocio.
+> **R:** Responsible, **A:** Accountable, **C:** Consulted, **I:** Informed.
 
 ---
 
-## 7. Recursos Adicionales
+## 5. Estándares de Seguridad y Compliance
 
-* AWS CLI Documentation
-* AWS Well-Architected Framework
-* AWS EKS Best Practices Guide
+Todos los despliegues son auditados automáticamente por **OPA Gatekeeper / Kyverno**.
+
+1.  **Contenedores:** No pueden correr como `root` (MustRunAsNonRoot).
+2.  **Límites:** Todos los Pods deben definir `requests` y `limits`.
+3.  **Imágenes:** Solo imágenes provenientes de ECR escaneadas (sin vulnerabilidades críticas).
 
 ---
 
-**Documento para adopción corporativa de nube.**
+## 6. Onboarding y Enlaces Útiles
+
+* [Guía de acceso al clúster (Wiki)](link)
+* [Dashboard de Grafana](link)
+* [ArgoCD Console](link)
+* [Canal de Soporte Slack/Teams](link)
