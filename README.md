@@ -110,6 +110,10 @@ La arquitectura sigue el patrón **"Hub-and-Spoke"** alineado con el *AWS Well-A
  * https://docs.aws.amazon.com/architecture-diagrams/latest/modernize-applications-with-microservices-using-amazon-eks/modernize-applications-with-microservices-using-amazon-eks.html?did=wp_card&trk=wp_card
 
 ### 2.1 Componentes del Blueprint
+
+<img width="1789" height="800" alt="Screenshot 2025-12-05 at 4 15 13 PM" src="https://github.com/user-attachments/assets/073b48a6-35f3-4d0e-bf80-bcd9fb223401" />
+
+
 1.  **Capa de Red (VPC):**
     * **Subnets Privadas (App Layer):** Donde residen los Worker Nodes. Sin acceso directo a Internet.
     * **Subnets Públicas (Ingress Layer):** Solo para Load Balancers (ALB/NLB) y NAT Gateways.
