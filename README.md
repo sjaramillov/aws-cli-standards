@@ -1,5 +1,9 @@
 # aws-cli-standards
 aws cli standards for enterprise cloud adoption
+
+<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/770131fd-2135-4da0-96c5-af7f0a95a2fb" />
+
+
 # AWS EKS Enterprise Standard: [Nombre del Clúster/Proyecto]
 
 | Control de Documento | Detalle |
