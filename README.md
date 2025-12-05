@@ -1,7 +1,7 @@
 # aws-cli-standards
 aws cli standards for enterprise cloud adoption
 
-<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/770131fd-2135-4da0-96c5-af7f0a95a2fb" />
+<img width="2816" height="1536" alt="Gemini_Generated_Image_cgo5nocgo5nocgo5" src="https://github.com/user-attachments/assets/2c5d8476-6035-48a7-851b-0ecc98e29d4e" />
 
 
 # AWS EKS Enterprise Standard: [Nombre del Clúster/Proyecto]
