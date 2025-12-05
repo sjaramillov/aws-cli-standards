@@ -1,12 +1,13 @@
 # aws-eks-standards
 aws EKS standards for enterprise cloud adoption
 
-**Intro. Most Used Commands for Amazon EKS (Elastic Kubernetes Service)**
+## **Intro. Most Used Commands for Amazon EKS (Elastic Kubernetes Service)**
 
 These AWS CLI commands are essential for managing the EKS control plane and integrating it with your local kubectl and eksctl tooling.
 
+<img width="638" height="891" alt="Screenshot 2025-12-04 at 10 16 51 PM" src="https://github.com/user-attachments/assets/20bc4170-40ec-4cc7-84c0-b79df65df472" />
 
-# Category	**Action**/	**Command** Example
+## Category	**Action**/	**Command** Example
 
 Cluster Management	List all cluster names	
 ```
@@ -68,8 +69,6 @@ Create an EKS add-on
 aws eks create-addon --cluster-name <name> --addon-name vpc-cni
 ```
 
-
-<img width="638" height="891" alt="Screenshot 2025-12-04 at 10 16 51 PM" src="https://github.com/user-attachments/assets/20bc4170-40ec-4cc7-84c0-b79df65df472" />
 
 # AWS EKS Enterprise Standard: [Nombre del Clúster/Proyecto]
 
