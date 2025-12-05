@@ -100,7 +100,9 @@ Este documento define la arquitectura de referencia, los patrones de operación 
 
 La arquitectura sigue el patrón **"Hub-and-Spoke"** alineado con el *AWS Well-Architected Framework*.
 
+<img width="1379" height="779" alt="modernize-applications-with-microservices-using-amazon-eks" src="https://github.com/user-attachments/assets/456bd68a-ef65-4a87-8e89-6609c4ccd3a6" />
 
+ * https://docs.aws.amazon.com/architecture-diagrams/latest/modernize-applications-with-microservices-using-amazon-eks/modernize-applications-with-microservices-using-amazon-eks.html?did=wp_card&trk=wp_card
 
 ### 2.1 Componentes del Blueprint
 1.  **Capa de Red (VPC):**
