@@ -1,5 +1,6 @@
 # aws-eks-standards
 aws EKS standards for enterprise cloud adoption
+Workshop EKS
 
 ## **Intro. Most Used Commands for Amazon EKS (Elastic Kubernetes Service)**
 
@@ -70,7 +71,8 @@ aws eks create-addon --cluster-name <name> --addon-name vpc-cni
 ```
 
 
-# AWS EKS Enterprise Standard: [Nombre del Clúster/Proyecto]
+#  AWS EKS Enterprise Standard: 
+# [Nombre del Clúster/Proyecto]
 
 | Control de Documento | Detalle |
 | :--- | :--- |
