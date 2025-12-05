@@ -13,7 +13,7 @@ Todo uso del AWS CLI dentro de la empresa **debe** seguir autenticación basada 
 ### Estándares Obligatorios
 
 * **Autenticación sin llaves permanentes**: Solo IAM Roles, AWS SSO o STS AssumeRole.
-* **Prohibido** usa claves estáticas o credenciales root.
+* **Prohibido** usar claves estáticas o credenciales root.
 * **Perfiles obligatorios**: Cada equipo debe operar con perfiles definidos en `~/.aws/config`.
 * **Región y formato estándar**: Obligatorio establecer región por defecto y formato `json`.
 * **Uso de `jq`** para procesamiento estándar de JSON en automatización.
