@@ -1,5 +1,5 @@
-# aws-cli-standards
-aws cli standards for enterprise cloud adoption
+# aws-eks-standards
+aws EKS standards for enterprise cloud adoption
 
 <img width="638" height="891" alt="Screenshot 2025-12-04 at 10 16 51 PM" src="https://github.com/user-attachments/assets/20bc4170-40ec-4cc7-84c0-b79df65df472" />
 
