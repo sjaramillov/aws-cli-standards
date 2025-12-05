@@ -71,6 +71,10 @@ aws eks list-addons --cluster-name <cluster-name>
 aws eks create-addon --cluster-name <name> --addon-name vpc-cni
 ```
 
+Strategic use of Kubernetes add-ons, combined with a hardened cluster baseline, enables an **enterprise-grade**, resilient fleet of clusters designed to securely orchestrate and scale containerized workloads across the organization.
+
+<img width="612" height="500" alt="Screenshot 2025-12-05 at 3 48 15 PM" src="https://github.com/user-attachments/assets/f4dc6c6c-efd9-49b7-aa83-e6c215f0bd01" />
+
 
 #  AWS EKS Enterprise Standard: 
 # [Nombre del Clúster/Proyecto]
