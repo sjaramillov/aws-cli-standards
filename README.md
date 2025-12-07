@@ -135,6 +135,9 @@ La arquitectura sigue el patrón **"Hub-and-Spoke"** alineado con el *AWS Well-A
 
 ### 3.1 Modelo de Despliegue (GitOps)
 No se permite el uso de `kubectl apply` manual en entornos productivos.
+* Amazon Q
+<img width="1783" height="959" alt="Screenshot 2025-12-06 at 12 34 06 PM" src="https://github.com/user-attachments/assets/ab61e264-b5e9-4397-8d49-ca3de26db472" />
+
 
 * **Herramienta:** ArgoCD / Flux.
 * **Repositorio de Configuración:** `[git-repo-url]/k8s-manifests`
