@@ -135,7 +135,8 @@ La arquitectura sigue el patrón **"Hub-and-Spoke"** alineado con el *AWS Well-A
 
 ### 3.1 Modelo de Despliegue (GitOps)
 No se permite el uso de `kubectl apply` manual en entornos productivos.
-* Amazon Q
+* ## Amazon Q
+* Amazon Q is a generative AI assistant that can help companies streamline processes, get to decisions faster, and improve employee productivity. It can help every employee gain insights into their data and accelerate their tasks.
 <img width="1783" height="959" alt="Screenshot 2025-12-06 at 12 34 06 PM" src="https://github.com/user-attachments/assets/ab61e264-b5e9-4397-8d49-ca3de26db472" />
 
 
