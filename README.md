@@ -3,7 +3,12 @@ aws EKS standards for Enterprise Cloud Adoption
 
  *  **Workshop EKS**
 
+## **Intro:  Kubernetes Trirreme-fleet**
+
+<img width="1178" height="770" alt="Screenshot 2025-12-14 at 1 39 04 PM" src="https://github.com/user-attachments/assets/c7484454-1a9b-46b3-b2f2-7371135582ec" />
+
 ## **Intro: Most Used Commands for Amazon EKS (Elastic Kubernetes Service)**
+
 
 These AWS CLI commands are essential for managing the EKS control plane and integrating it with your local kubectl and eksctl tooling.
 
