@@ -18,64 +18,86 @@ These AWS CLI commands are essential for managing the EKS control plane and inte
 
 ## Category	**Action**/	**Command** Example
 
- * Cluster Management	List all cluster names	
+https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html
+
+ * 1. Cluster Management	List all cluster names	
 ```
 aws eks list-clusters
  ```
 
- *  Get cluster details	
+ *  2. Get cluster details	
 ```
 aws eks describe-cluster --name <cluster-name>
 ```
 
- * Create an EKS cluster	
+ * 3. Create an EKS cluster	
 ```
-aws eks create-cluster --name <name> --version 1.29 --role-arn <role-arn> --resources-vpc-config ...
+aws eks create-cluster \
+  --name <cluster-name> \
+  --version 1.29 \
+  --role-arn <cluster-service-role-arn> \
+  --resources-vpc-config subnetIds=subnet-aaa,subnet-bbb,securityGroupIds=sg-xxx
+
 ```
 
- * Delete a cluster	
+ * 4. Delete a cluster	
 ```
 aws eks delete-cluster --name <cluster-name>
 ```
 
- * Kubeconfig	Crucial: Update local ~/.kube/config file to connect kubectl to the EKS cluster	
+ * 5. Kubeconfig	Crucial: Update local ~/.kube/config file to connect kubectl to the EKS cluster	
 ```
 aws eks update-kubeconfig --name <cluster-name>
 ```
 
- * Update with assumed role credentials	
+ * 6. Update with assumed role credentials	
 ```
 aws eks update-kubeconfig --name <cluster-name> --role-arn <management-role-arn>
 ```
 
- * Node Groups	List node groups in a cluster	
+ * 7. Node Groups	List node groups in a cluster	
 ```
 aws eks list-nodegroups --cluster-name <cluster-name>
 ```
 
- * Describe a node group	
+ * 8. Describe a node group	
 ```
-aws eks describe-nodegroup --cluster-name <name> --nodegroup-name <name>
+aws eks describe-nodegroup \
+  --cluster-name <cluster-name> \
+  --nodegroup-name <nodegroup-name>
+
 ```
 
- * Create a managed node group	
+ * 9. Create a managed node group	
 ```
-aws eks create-nodegroup --cluster-name <name> --nodegroup-name <name> --node-role <arn> --subnet-ids ...
+aws eks create-nodegroup \
+  --cluster-name <cluster-name> \
+  --nodegroup-name <nodegroup-name> \
+  --node-role <node-instance-role-arn> \
+  --subnets subnet-aaa subnet-bbb \
+  --scaling-config minSize=1,maxSize=5,desiredSize=3 \
+  --instance-types t3.medium \
+  --ami-type AL2_x86_64
+
 ```
 
- * Delete a node group	
+ * 10. Delete a node group	
 ```
 aws eks delete-nodegroup --cluster-name <name> --nodegroup-name <name>
 ```
 
- * Add-ons	List installed EKS add-ons	
+ * 11. Add-ons	List installed EKS add-ons	
 ```
 aws eks list-addons --cluster-name <cluster-name>
 ```
 
- * Create an EKS add-on	
+ * 12. Create an EKS add-on	
 ```
-aws eks create-addon --cluster-name <name> --addon-name vpc-cni
+aws eks create-addon \
+  --cluster-name <cluster-name> \
+  --addon-name vpc-cni \
+  --addon-version <version>
+
 ```
 
 # Strategic use of Kubernetes add-ons, combined with a hardened cluster baseline, enables an **enterprise-grade**, resilient fleet of clusters designed to securely orchestrate and scale containerized workloads across the organization.
