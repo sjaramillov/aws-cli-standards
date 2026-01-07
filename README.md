@@ -1,6 +1,8 @@
 # aws-eks-standards
 aws EKS standards for Enterprise Cloud Adoption
 
+<img width="1536" height="1024" alt="ChatGPT Image 6 ene 2026, 10_18_28 p m" src="https://github.com/user-attachments/assets/df86e2c7-9543-4e33-a73d-877914a10248" />
+
  *  **Workshop EKS**
 
 ## **Intro:  Kubernetes Trirreme-fleet**
