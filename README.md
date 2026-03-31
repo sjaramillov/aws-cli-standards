@@ -142,7 +142,7 @@ La arquitectura sigue el patrón **"Hub-and-Spoke"** alineado con el *AWS Well-A
 
 ### 2.1 Componentes del Blueprint
 
-<img width="1789" height="800" alt="Screenshot 2025-12-05 at 4 15 13 PM" src="https://github.com/user-attachments/assets/073b48a6-35f3-4d0e-bf80-bcd9fb223401" />
+<img />
 
 
 1.  **Capa de Red (VPC):**
@@ -168,7 +168,7 @@ La arquitectura sigue el patrón **"Hub-and-Spoke"** alineado con el *AWS Well-A
 No se permite el uso de `kubectl apply` manual en entornos productivos.
 * ## Amazon Q
 * Amazon Q is a generative AI assistant that can help companies streamline processes, get to decisions faster, and improve employee productivity. It can help every employee gain insights into their data and accelerate their tasks.
-<img width="1783" height="959" alt="Screenshot 2025-12-06 at 12 34 06 PM" src="https://github.com/user-attachments/assets/ab61e264-b5e9-4397-8d49-ca3de26db472" />
+<img  />
 
 
 * **Herramienta:** ArgoCD / Flux.
