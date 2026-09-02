@@ -1,224 +1,120 @@
-# aws-eks-standards
-aws EKS standards for Enterprise Cloud Adoption
+# AWS CLI y Amazon EKS: guía práctica para empezar
 
-<img width="1536" height="1024" alt="ChatGPT Image 6 ene 2026, 10_18_28 p m" src="https://github.com/user-attachments/assets/df86e2c7-9543-4e33-a73d-877914a10248" />
+Esta es una ruta de aprendizaje en español para entender Amazon EKS desde la línea de comandos. Empieza por el
+modelo mental, valida la identidad y la región de AWS, crea un laboratorio, despliega una carga sencilla y termina
+eliminando y verificando los recursos que pueden generar costos.
 
- *  **Workshop EKS**
+> [!WARNING]
+> Amazon EKS y los recursos que lo acompañan generan cargos. No ejecutes el laboratorio en una cuenta de producción.
+> Revisa [costos y limpieza](docs/06-costos-y-limpieza.md) **antes** de crear un clúster y elimínalo al terminar.
 
-## **Intro:  Kubernetes Trirreme-fleet**
+## Para quién es esta guía
 
-<img width="1178" height="770" alt="Screenshot 2025-12-14 at 1 39 04 PM" src="https://github.com/user-attachments/assets/c7484454-1a9b-46b3-b2f2-7371135582ec" />
+Está pensada para quien:
 
- * https://kubernetes.io/docs/concepts/architecture/
+- conoce lo básico de terminal, contenedores y YAML;
+- dispone de una cuenta *sandbox* o de un clúster de práctica autorizado;
+- quiere distinguir AWS CLI, `eksctl` y `kubectl` antes de operar EKS;
+- acepta trabajar con credenciales temporales, mínimo privilegio y costos visibles.
 
-## **Intro: Most Used Commands for Amazon EKS (Elastic Kubernetes Service)**
+No es una arquitectura lista para producción ni sustituye las políticas de seguridad, redes, continuidad o costos de
+tu organización. La [plantilla empresarial](docs/07-estandar-empresarial.md) empieza donde termina el laboratorio.
 
+## Qué aprenderás
 
-These AWS CLI commands are essential for managing the EKS control plane and integrating it with your local kubectl and eksctl tooling.
+Al completar la ruta podrás:
 
-<img width="638" height="891" alt="Screenshot 2025-12-04 at 10 16 51 PM" src="https://github.com/user-attachments/assets/20bc4170-40ec-4cc7-84c0-b79df65df472" />
+1. explicar qué administra AWS y qué administras tú en EKS;
+2. comprobar cuenta, rol, región y versiones antes de cambiar recursos;
+3. conectar de forma limitada un clúster autorizado o crear un laboratorio sin comandos incompletos;
+4. conectar `kubectl`, desplegar una carga y diagnosticar su estado;
+5. reconocer controles modernos: EKS Access Entries, EKS Pod Identity, registros del plano de control y nodos AL2023
+   o Bottlerocket;
+6. retirar el laboratorio y comprobar que no dejó recursos evidentes.
 
-## Category	**Action**/	**Command** Example
+## Ruta recomendada
 
-https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html
+La ruta completa de la tabla corresponde al laboratorio dedicado de la opción B. Si tu organización te entrega un
+clúster compartido, completa solo los pasos 0–2 y continúa únicamente con el namespace, manifiestos y comandos que su
+propietario haya autorizado; no uses los capítulos de operación o limpieza como un runbook genérico.
 
- * 1. Cluster Management	List all cluster names	
-```
-aws eks list-clusters
- ```
+| Paso | Tema | Evidencia de finalización |
+| --- | --- | --- |
+| 0 | [Conceptos y modelo mental](docs/00-conceptos.md) | Puedes diferenciar plano de control, nodos y Pods |
+| 1 | [Prerrequisitos seguros](docs/01-prerrequisitos.md) | `aws sts get-caller-identity` muestra la cuenta esperada |
+| 2 | [Primer clúster](docs/02-primer-cluster.md) | EKS está `ACTIVE` y `kubectl` consulta el API server |
+| 3 | [Operación esencial](docs/03-operacion-esencial.md) | La carga de ejemplo está `Available` y responde localmente |
+| 4 | [Seguridad base](docs/04-seguridad.md) | Puedes explicar IAM, RBAC, Access Entries y Pod Identity |
+| 5 | [Solución de problemas](docs/05-solucion-de-problemas.md) | Sabes recopilar evidencia sin exponer credenciales |
+| 6 | [Costos y limpieza](docs/06-costos-y-limpieza.md) | El clúster ya no existe y revisaste recursos remanentes |
 
- *  2. Get cluster details	
-```
-aws eks describe-cluster --name <cluster-name>
-```
+Después consulta la [referencia de comandos](docs/referencia-cli.md) y la
+[plantilla de estándar empresarial](docs/07-estandar-empresarial.md).
 
- * 3. Create an EKS cluster	
-```
-aws eks create-cluster \
-  --name <cluster-name> \
-  --version 1.29 \
-  --role-arn <cluster-service-role-arn> \
-  --resources-vpc-config subnetIds=subnet-aaa,subnet-bbb,securityGroupIds=sg-xxx
+## Inicio rápido, sin crear recursos
 
-```
+Clona el repositorio y ejecuta las comprobaciones locales:
 
- * 4. Delete a cluster	
-```
-aws eks delete-cluster --name <cluster-name>
-```
-
- * 5. Kubeconfig	Crucial: Update local ~/.kube/config file to connect kubectl to the EKS cluster	
-```
-aws eks update-kubeconfig --name <cluster-name>
-```
-
- * 6. Update with assumed role credentials	
-```
-aws eks update-kubeconfig --name <cluster-name> --role-arn <management-role-arn>
-```
-
- * 7. Node Groups	List node groups in a cluster	
-```
-aws eks list-nodegroups --cluster-name <cluster-name>
-```
-
- * 8. Describe a node group	
-```
-aws eks describe-nodegroup \
-  --cluster-name <cluster-name> \
-  --nodegroup-name <nodegroup-name>
-
+```bash
+git clone https://github.com/sjaramillov/aws-cli-standards.git
+cd aws-cli-standards
+make check
 ```
 
- * 9. Create a managed node group	
-```
-aws eks create-nodegroup \
-  --cluster-name <cluster-name> \
-  --nodegroup-name <nodegroup-name> \
-  --node-role <node-instance-role-arn> \
-  --subnets subnet-aaa subnet-bbb \
-  --scaling-config minSize=1,maxSize=5,desiredSize=3 \
-  --instance-types t3.medium \
-  --ami-type AL2_x86_64
+Configura variables explícitas para evitar operar en la cuenta o región equivocada. Sustituye los valores de ejemplo:
 
-```
+```bash
+export AWS_PROFILE="mi-sandbox"
+export AWS_REGION="us-east-1"
+export CLUSTER_NAME="eks-learning"
+export EXPECTED_AWS_ACCOUNT_ID="123456789012"
+export AWS_PAGER=""
 
- * 10. Delete a node group	
-```
-aws eks delete-nodegroup --cluster-name <name> --nodegroup-name <name>
+./scripts/preflight.sh
 ```
 
- * 11. Add-ons	List installed EKS add-ons	
-```
-aws eks list-addons --cluster-name <cluster-name>
-```
+Reemplaza el account ID; el script falla si no lo defines o no coincide. `preflight.sh` solo lee configuración y
+metadatos: no crea, modifica ni elimina recursos. Si tu organización ya te dio un clúster, continúa en
+[conectar un clúster existente](docs/02-primer-cluster.md#opción-a-usar-un-clúster-existente).
 
- * 12. Create an EKS add-on	
-```
-aws eks create-addon \
-  --cluster-name <cluster-name> \
-  --addon-name vpc-cni \
-  --addon-version <version>
+## Decisiones que mantienen vigente la guía
 
-```
+- **No se fija una versión en el texto.** La versión del laboratorio se consulta en tiempo de ejecución con
+  `aws eks describe-cluster-versions`; las versiones y sus fechas cambian.
+- **El laboratorio principal usa un Managed Node Group explícito.** Permite observar el plano de datos, la AMI y el
+  escalado. [EKS Auto Mode](docs/02-primer-cluster.md#opción-c-explorar-eks-auto-mode) se presenta como ruta moderna
+  alternativa, con su modelo operativo y tarifa adicional.
+- **No se recomienda Amazon Linux 2.** AWS dejó de publicar AMIs EKS optimizadas para AL2 el 26 de noviembre de 2025;
+  usa AL2023 o Bottlerocket.
+- **Personas con credenciales temporales.** Se favorecen federación e IAM Identity Center sobre access keys de larga
+  duración.
+- **Acceso con EKS Access Entries.** Para clústeres nuevos se evita depender del `aws-auth` ConfigMap heredado.
+- **Identidad de Pods con EKS Pod Identity cuando sea compatible.** IRSA continúa siendo válido para casos no
+  soportados, como determinadas cargas en Fargate o Windows.
+- **El primer servicio es `ClusterIP`.** Se usa `kubectl port-forward` para aprender sin crear un balanceador público.
+- **Toda creación tiene un procedimiento de retiro.** Un `delete-cluster` aislado no es un plan de limpieza.
 
-# Strategic use of Kubernetes add-ons, combined with a hardened cluster baseline, enables an **enterprise-grade**, resilient fleet of clusters designed to securely orchestrate and scale containerized workloads across the organization.
+## Fuente y vigencia
 
-<img width="612" height="500" alt="Screenshot 2025-12-05 at 3 48 15 PM" src="https://github.com/user-attachments/assets/f4dc6c6c-efd9-49b7-aa83-e6c215f0bd01" />
+Última revisión técnica: **2026-09-02**.
 
+Las afirmaciones técnicas se contrastan con fuentes primarias, entre ellas:
 
-#  AWS EKS Enterprise Standard: 
-# [Nombre del Clúster/Proyecto]
+- [Guía de inicio de Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/getting-started.html)
+- [Ciclo de vida de versiones de Kubernetes en EKS](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html)
+- [Guía de buenas prácticas de EKS](https://docs.aws.amazon.com/eks/latest/best-practices/introduction.html)
+- [EKS Access Entries](https://docs.aws.amazon.com/eks/latest/userguide/access-entries.html)
+- [Identidad para Pods](https://docs.aws.amazon.com/eks/latest/userguide/service-accounts.html)
+- [Precios de Amazon EKS](https://aws.amazon.com/eks/pricing/)
 
-| Control de Documento | Detalle |
-| :--- | :--- |
-| **ID del Documento** | REF-EKS-001 |
-| **Versión** | 1.0.0 (Draft) |
-| **Clasificación** | Interno  |
-| **Propietario Técnico** | Platform Engineering Team |
-| **Estado** | Activo |
-| **Última Actualización** | 2024-05-23 |
+Consulta la [auditoría de la versión original](docs/auditoria-2026-09.md) para ver hallazgos, remediaciones y
+limitaciones de verificación.
 
----
+## Contribuir y reportar problemas
 
-## 1. Propósito y Alcance
+Lee [CONTRIBUTING.md](CONTRIBUTING.md) antes de proponer cambios. No publiques credenciales, identificadores sensibles
+ni detalles explotables en un *issue*; usa el proceso descrito en [SECURITY.md](SECURITY.md).
 
-Este documento define la arquitectura de referencia, los patrones de operación y los controles de seguridad para el despliegue de cargas de trabajo en el clúster **[Nombre del Clúster]** basado en Amazon EKS. Su objetivo es garantizar la consistencia, la observabilidad y el cumplimiento normativo (Compliance) de todas las aplicaciones desplegadas.
+## Licencia
 
-### 1.1 Principios de Diseño
-* **Inmutabilidad:** La infraestructura se gestiona como código (IaC) mediante Terraform/Crossplane.
-* **GitOps:** Todo cambio en las cargas de trabajo debe pasar por un flujo de PR en Git (ArgoCD/Flux).
-* **Segregación:** Aislamiento estricto de redes y roles (IAM Roles for Service Accounts - IRSA).
-
----
-
-## 2. Arquitectura de Referencia (EKS Blueprint)
-
-La arquitectura sigue el patrón **"Hub-and-Spoke"** alineado con el *AWS Well-Architected Framework*.
-
-<img width="1379" height="779" alt="modernize-applications-with-microservices-using-amazon-eks" src="https://github.com/user-attachments/assets/456bd68a-ef65-4a87-8e89-6609c4ccd3a6" />
-
- * https://docs.aws.amazon.com/architecture-diagrams/latest/modernize-applications-with-microservices-using-amazon-eks/modernize-applications-with-microservices-using-amazon-eks.html?did=wp_card&trk=wp_card
-
-### 2.1 Componentes del Blueprint
-
-<img />
-
-
-1.  **Capa de Red (VPC):**
-    * **Subnets Privadas (App Layer):** Donde residen los Worker Nodes. Sin acceso directo a Internet.
-    * **Subnets Públicas (Ingress Layer):** Solo para Load Balancers (ALB/NLB) y NAT Gateways.
-    * **Control Plane:** Gestionado por AWS, acceso al API Server restringido vía VPN/Bastion.
-
-2.  **Cómputo (Data Plane):**
-    * **Managed Node Groups:** Para cargas de trabajo base y de sistema (CoreDNS, CNI).
-    * **Karpenter / AutoScaling:** Provisionamiento dinámico de nodos (Spot/On-Demand) basado en la demanda de los pods.
-    * **Fargate Profiles:** Para tareas *serverless* o *batch jobs* aislados.
-
-3.  **Ingress & Networking:**
-    * **AWS Load Balancer Controller:** Gestiona ALBs para HTTP/HTTPS y NLBs para TCP.
-    * **External DNS:** Sincronización automática de registros Route53.
-    * **Service Mesh (Opcional):** Istio/Linkerd para mTLS y observabilidad avanzada.
-
----
-
-## 3. Patrones de Operación
-
-### 3.1 Modelo de Despliegue (GitOps)
-No se permite el uso de `kubectl apply` manual en entornos productivos.
-* ## Amazon Q
-* Amazon Q is a generative AI assistant that can help companies streamline processes, get to decisions faster, and improve employee productivity. It can help every employee gain insights into their data and accelerate their tasks.
-<img  />
-
-
-* **Herramienta:** ArgoCD / Flux.
-* **Repositorio de Configuración:** `[git-repo-url]/k8s-manifests`
-* **Estrategia de Sync:** Automated Prune / Self-Heal.
-
-### 3.2 Observabilidad (O11y)
-Stack estandarizado pre-instalado en todos los clústeres:
-* **Métricas:** Prometheus (AMP) + Grafana.
-* **Logs:** Fluentbit -> CloudWatch Logs / OpenSearch.
-* **Tracing:** AWS X-Ray / Jaeger.
-
-### 3.3 Gestión de Secretos
-* **Prohibido:** Secretos en texto plano en repositorios Git.
-* **Estándar:** External Secrets Operator (ESO) integrando con **AWS Secrets Manager**.
-
----
-
-## 4. Matriz de Responsabilidades (RACI)
-
-Definición clara de *quién hace qué* en la operación del clúster.
-
-| Actividad | Platform Team | App/Dev Team | SecOps |
-| :--- | :---: | :---: | :---: |
-| **Provisionamiento del Clúster (EKS Upgrade)** | **R/A** | I | C |
-| **Gestión de Nodos (Capacity Planning)** | **R/A** | I | I |
-| **Creación de Namespaces y Quotas** | **R** | C | I |
-| **Despliegue de Aplicaciones (Helm/Manifests)** | C | **R/A** | I |
-| **Definición de Network Policies** | C | **R** | A |
-| **Gestión de Secretos (Secrets Manager)** | I | **R** | A |
-| **Respuesta a Incidentes (App Level)** | C | **R/A** | I |
-| **Respuesta a Incidentes (Infra Level)** | **R/A** | I | C |
-
-> **R:** Responsible, **A:** Accountable, **C:** Consulted, **I:** Informed.
-
----
-
-## 5. Estándares de Seguridad y Compliance
-
-Todos los despliegues son auditados automáticamente por **OPA Gatekeeper / Kyverno**.
-
-1.  **Contenedores:** No pueden correr como `root` (MustRunAsNonRoot).
-2.  **Límites:** Todos los Pods deben definir `requests` y `limits`.
-3.  **Imágenes:** Solo imágenes provenientes de ECR escaneadas (sin vulnerabilidades críticas).
-
----
-
-## 6. Onboarding y Enlaces Útiles
-
-* [Guía de acceso al clúster (Wiki)](link)
-* [Dashboard de Grafana](link)
-* [ArgoCD Console](link)
-* [Canal de Soporte Slack/Teams](link)
+Este repositorio se distribuye bajo la [licencia MIT](LICENSE).

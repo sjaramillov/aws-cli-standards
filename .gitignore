@@ -1,0 +1,5 @@
+/.kubeconfig.*
+/cluster-lab.generated.yaml
+/cluster-lab.plan.yaml
+__pycache__/
+*.pyc
