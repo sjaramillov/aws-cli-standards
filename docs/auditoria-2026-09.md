@@ -53,7 +53,7 @@ con EKS actual.
 | A-22 | Media | Sin troubleshooting, outputs ni criterios de éxito | El alumno no podía saber si avanzaba | Checkpoints, salidas esperadas y método diagnóstico |
 | A-23 | Media | Sin CI ni política de mantenimiento | Regresión y nueva obsolescencia | Checks internos, enlaces externos y Dependabot para Actions |
 | A-24 | Baja | Sin CONTRIBUTING, SECURITY ni CODEOWNERS | Colaboración y reporte ambiguos | Archivos de gobierno y plantillas de PR/issues |
-| A-25 | Pendiente | Sin licencia | Reutilización legalmente ambigua | Se documenta; la elección corresponde al propietario |
+| A-25 | Media | Sin licencia | Reutilización legalmente ambigua | Licencia MIT añadida por decisión del propietario |
 
 ## Decisiones pedagógicas
 
@@ -99,7 +99,7 @@ El corte de auditoría confirmó versiones concretas, pero no se trasladaron com
 - La validación de schema Kubernetes no cubre toda la lógica de admisión; `dry-run=server` y rollout requieren un
   clúster autorizado.
 - La imagen de ejemplo se verificó en `registry.k8s.io` y se fijó por digest multi-arquitectura; debe seguir escaneándose.
-- Lychee 0.24.2 verificó 118 referencias Markdown (69 destinos únicos, con localhost excluido) sin errores el
+- Lychee 0.24.2 verificó 119 referencias Markdown (70 destinos únicos, con localhost excluido) sin errores el
   2026-09-02; pueden comportarse distinto desde GitHub Actions y el workflow tiene reintentos.
 - El check local busca formatos comunes de credenciales en los archivos de texto actuales; no sustituye un escaneo del
   historial ni detección de secretos del proveedor Git.
@@ -108,12 +108,11 @@ El corte de auditoría confirmó versiones concretas, pero no se trasladaron com
 
 ## Decisiones pendientes del propietario
 
-1. Elegir una licencia con asesoría apropiada y añadir `LICENSE`.
-2. Activar branch/ruleset para exigir pull request y el check `docs-quality` en `main`.
-3. Activar secret scanning, push protection y private vulnerability reporting si están disponibles.
-4. Definir contacto privado de seguridad y SLA de respuesta.
-5. Decidir si el repositorio seguirá siendo una guía educativa o incluirá implementaciones IaC productivas separadas.
-6. Ejecutar el laboratorio en una cuenta desechable, registrar tiempos/costos reales y probarlo con personas nuevas.
+1. Activar branch/ruleset para exigir pull request y el check `docs-quality` en `main`.
+2. Activar secret scanning, push protection y private vulnerability reporting si están disponibles.
+3. Definir contacto privado de seguridad y SLA de respuesta.
+4. Decidir si el repositorio seguirá siendo una guía educativa o incluirá implementaciones IaC productivas separadas.
+5. Ejecutar el laboratorio en una cuenta desechable, registrar tiempos/costos reales y probarlo con personas nuevas.
 
 ## Criterio de mantenimiento
 

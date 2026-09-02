@@ -62,5 +62,4 @@ no sensible puede usar la plantilla de issue correspondiente.
 
 ## Licencia de contribuciones
 
-El repositorio aún no declara licencia. Antes de aceptar contribuciones externas sustantivas, el propietario debe elegir
-y publicar una licencia y aclarar los términos de contribución.
+Al enviar una contribución, aceptas que se distribuya bajo la [licencia MIT](LICENSE) del repositorio.

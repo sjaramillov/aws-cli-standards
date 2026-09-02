@@ -117,5 +117,4 @@ ni detalles explotables en un *issue*; usa el proceso descrito en [SECURITY.md](
 
 ## Licencia
 
-Este repositorio todavía no declara una licencia. Hasta que el propietario elija y añada una, el contenido conserva
-todos los derechos por defecto; consulta [la auditoría](docs/auditoria-2026-09.md#decisiones-pendientes-del-propietario).
+Este repositorio se distribuye bajo la [licencia MIT](LICENSE).
