@@ -41,13 +41,13 @@ con EKS actual.
 | A-10 | Alta | No había Access Entries ni distinción IAM/RBAC | Modelo de acceso incompleto y heredado | Autenticación `API`, conceptos, inventario y ejemplo namespace-scoped |
 | A-11 | Alta | Crear `vpc-cni` con `<version>` sin descubrimiento | Conflictos, incompatibilidad o permisos incorrectos | Flujo de inspección/compatibilidad antes de cualquier update |
 | A-12 | Alta | `update-kubeconfig --role-arn` se explicaba ambiguamente | Contexto/rol equivocado y modificación global | Kubeconfig aislado, `--dry-run`, alias y diferencia con assume-role |
-| A-13 | Media | Diagramas generados contenían relaciones erróneas | Enseñaban almacenamiento/runtime/arquitectura incorrectos | Diagramas Mermaid pequeños, revisables y versionados |
+| A-13 | Media | Diagramas generados contenían relaciones erróneas | Enseñaban almacenamiento/runtime/arquitectura incorrectos | Mermaid versionado y tres ilustraciones mitológicas con leyendas, alcance y límites explícitos |
 | A-14 | Media | Diagrama VMware/NSX-T descrito como blueprint hub-and-spoke | Patrón específico presentado como regla Well-Architected | Matriz de decisiones y arquitectura conceptual neutral |
 | A-15 | Media | “Subnets públicas solo para ALB/NLB” | Ignoraba Load Balancers internos en privadas | Distinción explícita internet-facing/interno |
 | A-16 | Media | “Karpenter / AutoScaling” mezclaba mecanismos | Confusión de ownership y escalado | Comparación MNG, Auto Mode, Fargate y Karpenter |
 | A-17 | Media | “Todos los despliegues son auditados” sin policies/tests | Afirmación de compliance sin evidencia | Catálogo control→mecanismo→evidencia→owner→frecuencia |
 | A-18 | Media | `MustRunAsNonRoot` y controles sin manifiesto | Terminología heredada y no verificable | PSA `restricted` y workload no-root fijado por digest |
-| A-19 | Media | Cuatro enlaces placeholder y dos etiquetas de imagen vacías | Navegación rota y mala accesibilidad | Estructura modular y comprobación automática de enlaces internos |
+| A-19 | Media | Cuatro enlaces placeholder y dos etiquetas de imagen vacías | Navegación rota y mala accesibilidad | Estructura modular, enlaces comprobados e imágenes versionadas con texto alternativo descriptivo |
 | A-20 | Media | Mezcla de inglés/español y jerarquía Markdown rota | Alta carga cognitiva | Español consistente, un H1 por archivo y ruta numerada |
 | A-21 | Media | “Interno” en un repo público y fechas contradictorias | Riesgo de gobierno y falta de trazabilidad | Plantilla pública con clasificación/estado/revisión explícitos |
 | A-22 | Media | Sin troubleshooting, outputs ni criterios de éxito | El alumno no podía saber si avanzaba | Checkpoints, salidas esperadas y método diagnóstico |
@@ -63,6 +63,18 @@ El laboratorio principal usa un Managed Node Group para que el alumno observe EC
 EKS Auto Mode se documenta como una alternativa actual de primera clase, pero aprender solo con sus abstracciones
 ocultaría conceptos que la guía pretende enseñar. Una organización puede invertir el orden si prioriza tiempo al primer
 despliegue sobre comprensión del plano de datos.
+
+### Metáfora visual con una fuente técnica separada
+
+Se recuperó la mitología griega como recurso pedagógico porque Kubernetes exige comprender relaciones abstractas antes
+de observarlas directamente. El Olimpo representa un plano de control distribuido, cada trirreme un worker node y los
+auxiliares de la flota los add-ons que se ejecutan en el plano de datos.
+
+Las ilustraciones no son la fuente normativa: cada una tiene una leyenda que identifica equivalencias, excepciones y
+alcance, mientras que Mermaid, las tablas y las fuentes primarias conservan el modelo revisable. En particular, la
+flota no representa varios clústeres, el scheduler no ejecuta contenedores, `etcd` no almacena datos de negocio y los
+add-ons no se ubican dentro del plano de control. El [registro de las ilustraciones](assets/README.md) conserva su
+procedencia, propósito, prompts efectivos y revisión manual.
 
 ### Topología económica, no productiva
 
@@ -86,7 +98,8 @@ El corte de auditoría confirmó versiones concretas, pero no se trasladaron com
   `kubeconform` 0.8.0 en modo estricto contra Kubernetes 1.34, 1.35 y 1.36. CI descarga los binarios fijados y comprueba
   sus SHA-256 antes de usarlos; los schemas Kubernetes se fijan a un commit explícito.
 - Los scripts pasaron ShellCheck 0.11.0 y los workflows pasaron `actionlint` 1.7.12. Mermaid se revisó como código, pero
-  no se renderiza automáticamente en CI.
+  no se renderiza automáticamente en CI. Las ilustraciones se revisaron manualmente para comprobar legibilidad y
+  correspondencia con sus leyendas; CI comprueba archivos y enlaces, pero no valida semánticamente los píxeles.
 - Las dependencias Python directas y transitivas quedaron bloqueadas con hashes; los binarios externos usados por CI se
   descargan en versiones fijas y se verifican antes de ejecutar.
 - El preflight y el guard de propiedad tienen pruebas sin red que simulan cuenta equivocada, usuario raíz, versión fuera
@@ -99,7 +112,7 @@ El corte de auditoría confirmó versiones concretas, pero no se trasladaron com
 - La validación de schema Kubernetes no cubre toda la lógica de admisión; `dry-run=server` y rollout requieren un
   clúster autorizado.
 - La imagen de ejemplo se verificó en `registry.k8s.io` y se fijó por digest multi-arquitectura; debe seguir escaneándose.
-- Lychee 0.24.2 verificó 119 referencias Markdown (70 destinos únicos, con localhost excluido) sin errores el
+- Lychee 0.24.2 verificó 132 referencias Markdown (78 destinos únicos, con localhost excluido) sin errores el
   2026-09-02; pueden comportarse distinto desde GitHub Actions y el workflow tiene reintentos.
 - El check local busca formatos comunes de credenciales en los archivos de texto actuales; no sustituye un escaneo del
   historial ni detección de secretos del proveedor Git.

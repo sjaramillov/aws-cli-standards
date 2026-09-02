@@ -8,6 +8,12 @@ eliminando y verificando los recursos que pueden generar costos.
 > Amazon EKS y los recursos que lo acompañan generan cargos. No ejecutes el laboratorio en una cuenta de producción.
 > Revisa [costos y limpieza](docs/06-costos-y-limpieza.md) **antes** de crear un clúster y elimínalo al terminar.
 
+![Mapa visual de EKS: un Olimpo como plano de control y una flota de trirremes como worker nodes](docs/assets/eks-olympus-control-plane-fleet.png)
+
+*El Olimpo representa el plano de control distribuido que opera AWS; cada trirreme representa un worker node del
+mismo clúster. La imagen es una puerta de entrada: consulta la
+[leyenda y los límites de la metáfora](docs/00-conceptos.md#cómo-leer-la-metáfora) antes de usarla como modelo técnico.*
+
 ## Para quién es esta guía
 
 Está pensada para quien:

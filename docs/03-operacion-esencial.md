@@ -166,6 +166,29 @@ kubectl get deployment coredns --namespace kube-system
 kubectl get daemonset kube-proxy --namespace kube-system
 ```
 
+La siguiente escena corresponde al laboratorio con Managed Node Groups sobre EC2:
+
+![Add-ons de EKS como auxiliares distribuidos entre tres worker nodes](assets/eks-addons-fleet.png)
+
+*“EKS add-on” y “autogestionado” describen quién instala, configura y actualiza el componente; no convierten esos
+Pods en parte del plano de control.*
+
+| Componente | Forma habitual en este laboratorio | Responsabilidad | Límite de la metáfora |
+| --- | --- | --- | --- |
+| Amazon VPC CNI (`aws-node`) | DaemonSet, normalmente un Pod por nodo EC2 compatible | Integra la red de los Pods con la VPC y administra direcciones IP e interfaces de red | No resuelve nombres ni implementa Services |
+| `kube-proxy` | DaemonSet, normalmente un Pod por nodo EC2 compatible | Mantiene reglas de red locales para la conectividad de Services y Pods | No es un proxy central ni reemplaza al CNI |
+| CoreDNS | Deployment con varias réplicas | Resuelve nombres de Services y Pods dentro del clúster | No enruta tráfico ni funciona como balanceador |
+| EKS add-on o autogestionado | Para un mismo componente, los objetos de Kubernetes pueden ser equivalentes | Cambia la responsabilidad de instalación, configuración y actualización | No cambia automáticamente dónde se ejecuta el componente |
+
+Las dos figuras de CoreDNS representan dos réplicas de un único Deployment; no existe una relación fija de una
+réplica por nodo. Además, `aws eks list-addons` solo enumera add-ons administrados mediante la API de EKS. Si un nombre
+no aparece allí, comprueba sus objetos de Kubernetes antes de concluir que el componente no existe.
+
+> [!NOTE]
+> EKS Auto Mode ya proporciona red de Pods, red de Services y DNS de clúster; en su cómputo, varios de estos add-ons
+> resultan redundantes. Fargate y los clústeres híbridos también tienen compatibilidades diferentes. No generalices
+> esta flota a todos los planos de datos de EKS.
+
 Un componente puede ser un EKS add-on o estar autogestionado. Antes de actualizarlo, identifica su tipo, versión,
 configuración, permisos y compatibilidad. No uses `create-addon` con una versión inventada ni
 `--resolve-conflicts OVERWRITE` sin revisar qué se perderá.
@@ -193,6 +216,7 @@ apagar tu equipo no detiene los cargos de AWS.
 - [Desplegar una aplicación de muestra en EKS](https://docs.aws.amazon.com/eks/latest/userguide/sample-deployment.html)
 - [Buenas prácticas de seguridad de Pods](https://docs.aws.amazon.com/eks/latest/best-practices/pod-security.html)
 - [EKS add-ons](https://docs.aws.amazon.com/eks/latest/userguide/eks-add-ons.html)
+- [Add-ons de red de Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/eks-networking-add-ons.html)
 - [Compatibilidad de add-ons](https://docs.aws.amazon.com/eks/latest/userguide/addon-compat.html)
 
 [← Primer clúster](02-primer-cluster.md) · [Siguiente: seguridad →](04-seguridad.md)
