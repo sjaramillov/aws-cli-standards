@@ -1,0 +1,3 @@
+# Dependencias directas usadas por scripts/validate_schemas.py.
+jsonschema==4.26.0
+PyYAML==6.0.3

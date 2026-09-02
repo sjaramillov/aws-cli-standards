@@ -1,0 +1,99 @@
+name: docs-quality
+
+on:
+  merge_group:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: "17 13 1 * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: docs-quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - name: Run deterministic checks
+        run: make check
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install validation libraries
+        run: python -m pip install --require-hashes --requirement requirements-ci.txt
+
+      - name: Install pinned validation tools
+        env:
+          ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+          ACTIONLINT_VERSION: 1.7.12
+          EKSCTL_SHA256: a2060956f117c3065abafda5c1f681679b9c3716675d70ce4ffff46033b02c35
+          EKSCTL_VERSION: 0.230.0
+          KUBECONFORM_SHA256: 9bc2bffbf71f261128533edaf912153948b7ff238f9a531ae6d34466ec287883
+          KUBECONFORM_VERSION: 0.8.0
+          LYCHEE_SHA256: 1f4e0ef7f6554a6ed33dd7ac144fb2e1bbed98598e7af973042fc5cd43951c9a
+          LYCHEE_VERSION: 0.24.2
+          SHELLCHECK_SHA256: 8c3be12b05d5c177a04c29e3c78ce89ac86f1595681cab149b65b97c4e227198
+          SHELLCHECK_VERSION: 0.11.0
+        run: |
+          curl --fail --show-error --location \
+            "https://github.com/eksctl-io/eksctl/releases/download/v${EKSCTL_VERSION}/eksctl_Linux_amd64.tar.gz" \
+            --output /tmp/eksctl.tar.gz
+          echo "${EKSCTL_SHA256}  /tmp/eksctl.tar.gz" | sha256sum --check
+          tar --extract --gzip --file /tmp/eksctl.tar.gz --directory /tmp eksctl
+
+          curl --fail --show-error --location \
+            "https://github.com/yannh/kubeconform/releases/download/v${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" \
+            --output /tmp/kubeconform.tar.gz
+          echo "${KUBECONFORM_SHA256}  /tmp/kubeconform.tar.gz" | sha256sum --check
+          tar --extract --gzip --file /tmp/kubeconform.tar.gz --directory /tmp kubeconform
+
+          curl --fail --show-error --location \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" \
+            --output /tmp/actionlint.tar.gz
+          echo "${ACTIONLINT_SHA256}  /tmp/actionlint.tar.gz" | sha256sum --check
+          tar --extract --gzip --file /tmp/actionlint.tar.gz --directory /tmp actionlint
+
+          curl --fail --show-error --location \
+            "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
+            --output /tmp/shellcheck.tar.xz
+          echo "${SHELLCHECK_SHA256}  /tmp/shellcheck.tar.xz" | sha256sum --check
+          tar --extract --xz --file /tmp/shellcheck.tar.xz --directory /tmp
+
+          curl --fail --show-error --location \
+            "https://github.com/lycheeverse/lychee/releases/download/lychee-v${LYCHEE_VERSION}/lychee-x86_64-unknown-linux-gnu.tar.gz" \
+            --output /tmp/lychee.tar.gz
+          echo "${LYCHEE_SHA256}  /tmp/lychee.tar.gz" | sha256sum --check
+          tar --extract --gzip --file /tmp/lychee.tar.gz --directory /tmp
+
+      - name: Validate schemas
+        run: >-
+          make check-schemas check-kubernetes check-actions check-shellcheck
+          ACTIONLINT_BIN=/tmp/actionlint
+          EKSCTL_BIN=/tmp/eksctl
+          KUBECONFORM_BIN=/tmp/kubeconform
+          SHELLCHECK_BIN=/tmp/shellcheck-v0.11.0/shellcheck
+
+      - name: Check external links
+        run: >-
+          /tmp/lychee-x86_64-unknown-linux-gnu/lychee
+          --no-progress
+          --config .lychee.toml
+          './**/*.md'

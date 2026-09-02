@@ -1,0 +1,56 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: "__CLUSTER_NAME__"
+  region: "__AWS_REGION__"
+  version: "__EKS_VERSION__"
+  tags:
+    Project: eks-learning
+    Environment: lab
+    ManagedBy: eksctl
+    Owner: "__OWNER_TAG__"
+    DeleteAfter: "__DELETE_AFTER__"
+
+accessConfig:
+  authenticationMode: API
+  bootstrapClusterCreatorAdminPermissions: true
+
+vpc:
+  clusterEndpoints:
+    publicAccess: true
+    privateAccess: true
+  publicAccessCIDRs:
+    - "__PUBLIC_ACCESS_CIDR__"
+  nat:
+    gateway: Disable
+
+managedNodeGroups:
+  - name: learning-ng
+    amiFamily: AmazonLinux2023
+    instanceType: t3.small
+    privateNetworking: false
+    desiredCapacity: 1
+    minSize: 1
+    maxSize: 2
+    volumeType: gp3
+    volumeSize: 20
+    volumeEncrypted: true
+    disableIMDSv1: true
+    disablePodIMDS: true
+    ssh:
+      allow: false
+    labels:
+      workload: learning
+    tags:
+      Project: eks-learning
+      Environment: lab
+      Owner: "__OWNER_TAG__"
+      DeleteAfter: "__DELETE_AFTER__"
+
+cloudWatch:
+  clusterLogging:
+    enableTypes:
+      - audit
+      - authenticator
+    logRetentionInDays: 7
