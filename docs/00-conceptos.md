@@ -10,6 +10,31 @@ autenticación, autorización, plano de control y plano de datos.
 Amazon EKS es Kubernetes administrado. AWS opera el plano de control; tú sigues siendo responsable de cómo acceden
 las personas, de las cargas, los datos, las imágenes, la red de la VPC y —según el tipo de cómputo— de los nodos.
 
+### Cómo leer la metáfora
+
+![El plano de control de EKS como un Olimpo conectado a una flota de tres worker nodes](assets/eks-olympus-control-plane-fleet.png)
+
+*La ilustración hace visibles las responsabilidades; el diagrama versionable que sigue conserva la topología técnica.*
+
+| Elemento visual | Componente real | Qué hace |
+| --- | --- | --- |
+| Olimpo | Plano de control de EKS | AWS opera una arquitectura distribuida y de alta disponibilidad; no es un único “Zeus” ni un servidor singular |
+| Puerta | Kubernetes API server | Recibe y valida solicitudes de `kubectl`, controladores y otros clientes autorizados |
+| Archivo | `etcd` | Conserva el estado de los objetos de la API de Kubernetes, no los datos de negocio de las aplicaciones |
+| Cartógrafo | Scheduler | Vincula un Pod pendiente a un nodo compatible; no inicia contenedores |
+| Tejedoras | Controllers | Comparan estado deseado y observado y ejecutan acciones de reconciliación |
+| Puente o X-ENI | Interfaces de red administradas por EKS en tu VPC | Comunican el plano de control con el plano de datos mediante rutas redundantes |
+| Trirreme | Un worker node | Ejecuta Pods y componentes de nodo; la flota representa nodos de un solo clúster, no varios clústeres |
+| Capitán | Kubelet | Coordina en su nodo la ejecución de los Pods asignados y reporta su estado |
+
+> [!IMPORTANT]
+> Los templos representan responsabilidades, no una relación de un proceso por servidor: EKS replica los componentes
+> del plano de control entre zonas de disponibilidad. La X-ENI dibujada resume varias interfaces y rutas redundantes.
+> El alcance es EKS sin Auto Mode y con Managed Node Groups sobre EC2. El tráfico normal entre aplicaciones no pasa
+> por el plano de control.
+
+### El mismo sistema, sin metáfora
+
 ```mermaid
 flowchart LR
     person[Persona o CI/CD]
@@ -83,6 +108,26 @@ Windows.
 El laboratorio principal usa un Managed Node Group porque hace visibles las piezas. Esto no convierte esa opción en
 la única correcta para producción.
 
+### Dentro de una trirreme: anatomía del worker node
+
+![Anatomía de un worker node como una trirreme con kubelet, runtime, Pods y almacenamiento](assets/kubernetes-worker-node-trireme.png)
+
+*Una trirreme equivale a un worker node completo, no a un Pod. Los Pods son unidades programables dentro del nodo y
+pueden contener uno o varios contenedores.*
+
+| Pieza | Lectura técnica |
+| --- | --- |
+| Kubelet | Observa los Pods asignados al nodo, coordina su ejecución mediante el container runtime y reporta estado; no elige el nodo |
+| Container runtime | Descarga imágenes y crea, inicia o detiene contenedores mediante CRI; no debe confundirse con Docker Engine |
+| Pod | Comparte red y otros recursos entre uno o más contenedores y es la unidad que el scheduler vincula a un nodo |
+| `emptyDir` | Almacenamiento efímero ligado a la vida del Pod; no es un volumen persistente |
+| `kube-proxy` | Mantiene reglas locales para implementar Services; no es un proxy central por el que pase todo el tráfico |
+| PVC → PV → CSI | La aplicación solicita almacenamiento con un PVC; Kubernetes lo vincula a un PV existente o provisionado mediante una StorageClass y un controlador CSI |
+
+El muelle externo representa el caso habitual en EKS de un backend como EBS o EFS. Un PV es un recurso de la API,
+no el disco en sí. Kubernetes también admite PV locales, ligados a un nodo mediante afinidad; por eso “persistente”
+no significa necesariamente “externo al nodo”.
+
 ## Comprobación de aprendizaje
 
 Antes de continuar, deberías poder responder:
@@ -99,5 +144,7 @@ Antes de continuar, deberías poder responder:
 - [Acceso al clúster con EKS Access Entries](https://docs.aws.amazon.com/eks/latest/userguide/access-entries.html)
 - [Comparación de identidad para ServiceAccounts](https://docs.aws.amazon.com/eks/latest/userguide/service-accounts.html)
 - [Opciones de cómputo de Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/eks-compute.html)
+- [Almacenamiento de EBS mediante CSI en EKS](https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html)
+- [Persistent Volumes de Kubernetes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/)
 
 [Siguiente: prerrequisitos seguros →](01-prerrequisitos.md)
